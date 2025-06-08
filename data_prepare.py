@@ -116,12 +116,15 @@ class MultiFormatDataLoader:
             }
         
         self.n_splits = n_splits
-        print(f"K-Fold CV setup: {n_splits} folds")
-        if test_ratio > 0:
-            print(f"Test set: {len(self.test_indices)} samples ({test_ratio:.1%})")
-        print(f"Train+Val per fold: ~{len(self.train_val_indices)//n_splits} val, ~{len(self.train_val_indices)*(n_splits-1)//n_splits} train samples")
+        # If this is the main torch process, print the conclusion
+        if torch.distributed.get_rank() == 0:
+            print(f"K-Fold CV setup: {n_splits} folds")
+            if test_ratio > 0:
+                print(f"Test set: {len(self.test_indices)} samples ({test_ratio:.1%})")
+            print(f"Train+Val per fold: ~{len(self.train_val_indices)//n_splits} val, ~{len(self.train_val_indices)*(n_splits-1)//n_splits} train samples")
         
         return self
+    
     def split_data(self, train_ratio=0.8, val_ratio=0.1):
         """传统的固定划分方式（与K折交叉验证互斥）"""
         n = len(self.raw_data['labels'])

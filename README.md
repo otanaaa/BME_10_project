@@ -36,6 +36,8 @@ pip install -r requirements.txt
 ### 2. Accelerate Configuration
 The project uses [Hugging Face Accelerate](https://huggingface.co/docs/accelerate/index) for efficient training. You can find the configuration file in `configs/accelerate_config.yaml`.
 
+Adjust the config file to fit your hardware settings.
+
 ### 3. Datasets
 The datasets used in this project can be downloaded from: [https://epan.shanghaitech.edu.cn/l/hFkGi2](https://epan.shanghaitech.edu.cn/l/hFkGi2)
 

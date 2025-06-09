@@ -5,7 +5,7 @@ data:
 
 # 模型配置
 model:
-  model_type: "densenet121"  # mlp, cnn, rnn, gru, resnet18, resnet50, densenet121, vit
+  model_type: "vit"  # mlp, cnn, rnn, gru, resnet18, resnet50, densenet121, vit
   num_classes: 2
   dropout: 0.3
   

@@ -1,17 +1,17 @@
 # 数据配置
 data:
   data_dir: "./data"
-  batch_size: 128
+  batch_size: 256
 
 # 模型配置
 model:
-  model_type: "mlp"  # mlp, cnn, rnn, gru, resnet18, resnet50, densenet121, vit
+  model_type: "densenet121"  # mlp, cnn, rnn, gru, resnet18, resnet50, densenet121, vit
   num_classes: 2
-  dropout: 0.2
+  dropout: 0.3
   
   # 模型特定配置
   mlp:
-    hidden_dims: [1024, 256, 64]
+    hidden_dims: [2048, 1024, 1024, 256, 64]
   
   cnn:
     channels: [16, 32, 64]
@@ -24,9 +24,9 @@ model:
 
 # 训练配置
 training:
-  num_epochs: 20
-  lr: 1e-3
-  weight_decay: 0.0001
+  num_epochs: 12
+  lr: 5e-5
+  weight_decay: 1e-4
   patience: 3
   
   # 优化器设置
@@ -36,7 +36,7 @@ training:
 # 交叉验证配置
 cross_validation:
   use_kfold: true
-  n_splits: 5
+  n_splits: 10
   stratified: true
   test_ratio: 0.05
 

@@ -13,7 +13,7 @@ def setup_logging():
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         handlers=[
-            logging.FileHandler('training_log.txt'),
+            # logging.FileHandler('training_log.txt'),
             logging.StreamHandler()
         ]
     )
@@ -98,7 +98,7 @@ def run_single_fold(config, model_type, experiment_name=None, logger=None, fold=
         if config['cross_validation']['stratified']:
             cmd.append("--stratified")
         cmd.extend([
-            "test_ratio", str(config['cross_validation']['test_ratio']),
+            "--test_ratio", str(config['cross_validation']['test_ratio']),
         ])
     
     # 添加折数参数
@@ -139,8 +139,6 @@ def main():
     parser = argparse.ArgumentParser(description='Run ICA training experiments')
     parser.add_argument('--config', type=str, default='configs/test.yaml',
                        help='Path to configuration file')
-    parser.add_argument('--single_model', type=str,
-                       help='Train only one specific model', required=True)
     parser.add_argument('--experiment_prefix', type=str, default='ica_exp',
                        help='Prefix for experiment names')
     parser.add_argument('--verbose', action='store_true',
@@ -157,6 +155,7 @@ def main():
         config = load_config(args.config)
         validate_config(config)
         logger.info("配置文件验证通过")
+        single_model = config['model']['model_type']
         
         # 创建必要的目录
         save_dir = Path(config['paths']['save_dir'])
@@ -167,11 +166,11 @@ def main():
         logger.info(f"创建日志目录: {log_dir}")
         
         # 训练单个模型
-        experiment_name = f"{args.experiment_prefix}_{args.single_model}"
-        logger.info(f"开始训练模型: {args.single_model}")
+        experiment_name = f"{args.experiment_prefix}_{single_model}"
+        logger.info(f"开始训练模型: {single_model}")
         for fold in range(config['cross_validation']['n_splits']):
             logger.info(f"开始第 {fold + 1} 折训练")
-            success = run_single_fold(config, args.single_model, experiment_name, logger, fold=fold)
+            success = run_single_fold(config, single_model, experiment_name, logger, fold=fold)
             if success:
                 logger.info(f"第 {fold + 1} 折训练成功")
             else:

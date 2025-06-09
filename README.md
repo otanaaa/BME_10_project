@@ -1,146 +1,81 @@
 # Rat_Gift_ICA
 
-This repo is part of the final project of BME Course: Python Programing in ShanghaiTech University. The main task is to use machine learning to separate the rats' voice signal from background noise. 
-It is built on top of [Pytorch]() and [Sklearn](). 
+This repository is part of the final project for the BME course "Python Programming" at ShanghaiTech University. The main objective is to use machine learning to separate rat vocal signals from background noise.
 
-> ⚠️ This project is still under active development and may contain bugs.
+The project is built on top of [PyTorch](https://pytorch.org/) and [scikit-learn](https://scikit-learn.org/).
 
----
-
-## Installation
-
-### Chrome
-
-Only **Google Chrome** is supported, as we rely on the Chrome DevTools Protocol (CDP) to communicate with a running browser instance. This allows bypassing manual authentication steps.
+> ⚠️ This project is under active development and may contain bugs.
 
 ---
 
-### Install UV (Universal Virtual Environment)
+## Preparation
 
-On **Windows**, open PowerShell and run:
-
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-You can verify the installation by running `uv --version`.
+### 1. Install Conda (Virtual Environment Manager)
+If you do not have Conda installed, please refer to the [official documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
 ---
 
 ## Project Requirements
+
 ### 1. Project Dependencies
-```
-# Install dependencies
-uv sync
-```
-
-```
-# Activate venv
-.venv\Scripts\activate
-```
-
-Remember to select venv as python interpreter  in VS Code
-
-### How to start
-First step is to start a chrome browser at port 9222.It will generate user data in  in `ChromeUserData` which is separate from your previous Chrome.
+Create and activate a virtual environment, then install the required packages:
 
 ```bash
-# Start chrome that enables cdp connection
-python start_chrome.py
+# Create environment
+conda create -n ica python=3.11
+
+# Activate environment
+conda activate ica
+
+# Install packages
+pip install -r requirements.txt
 ```
 
-Then start the MCP Client (This is a Gradio App runs on port 7860)
+> **Note:** The `requirements.txt` may contain more packages than strictly necessary. You can also check each file's dependencies and install only what you need, as this project is relatively lightweight.
+
+### 2. Accelerate Configuration
+The project uses [Hugging Face Accelerate](https://huggingface.co/docs/accelerate/index) for efficient training. You can find the configuration file in `configs/accelerate_config.yaml`.
+
+### 3. Datasets
+The datasets used in this project can be downloaded from: [https://epan.shanghaitech.edu.cn/l/hFkGi2](https://epan.shanghaitech.edu.cn/l/hFkGi2)
+
+Place the downloaded data in the `data/` directory.
+
+---
+
+## How to Reproduce Training Results
+
+1. Choose the model configuration you want to use for training. All model configs are in the `configs/` directory.
+2. Start training with the following command:
+
 ```bash
-# Start chrome that enables cdp connection
-python webui.py
+python run_train.py --config configs/resnet18.yaml
 ```
 
-In the Gradio App, only Deepseek and Azure OpenAI works now. Leave all the settings blank so that default settings in .env will be applied. Then click `Set LLM` and then click `Connect`, and finally you can chat with the LLM to let it call mcp tools and fill resume.
+- For scikit-learn models (KNN, Logistic Regression, etc.), use `sk_pred.ipynb`.
+- To visualize the dataset and training results, refer to `data_player.ipynb` and `draw_results.ipynb`.
 
-### Recommend Prompt
-```markdown
-你是一个专业的浏览器自动化Agent，具备以下MCP工具来操作网页：
-
-**可用工具说明：**
-- `initialize_page(url)`: 打开浏览器并导航到指定网页
-- `get_resume_content()`: 读取用户的简历内容
-- `get_webpage_button()`: 获取当前页面所有可点击按钮的信息（包括"添加实习经历"、"添加项目经历"等按钮）
-- `get_webpage_input()`: 获取当前页面所有输入框的信息（包括姓名、学校、公司等输入框）
-- `click_index(index)`: 点击指定索引号的按钮
-- `fill_index_with_content(index, content)`: 在指定索引号的输入框中填入内容
-
-**任务目标：**
-请帮我自动填写简历到 https://jobs.mihoyo.com/#/campus/resume/position/edit/6018
-
-**执行步骤（请严格按此顺序）：**
-
-1. **初始化和分析阶段**
-   - 使用 `initialize_page()` 打开目标网页
-   - 使用 `get_resume_content()` 读取我的简历内容
-   - 分析简历，统计实习经历数量和项目经历数量
-
-2. **DOM结构添加阶段**
-   - 使用 `get_webpage_button()` 获取页面按钮信息
-   - 根据简历分析结果，找到"添加实习经历"和"添加项目经历"按钮
-   - 一次性点击足够次数的添加按钮（例如：如果有3个实习经历，就点击3次"添加实习经历"按钮）
-   - ⚠️ **重要**：每次点击后页面DOM会变化，所以要一次性添加完所有需要的栏目
-
-3. **内容填写阶段**
-   - 使用 `get_webpage_input()` 重新获取更新后的输入框信息
-   - 按照简历内容，使用 `fill_index_with_content()` 逐一填写所有输入框
-   - 填写顺序建议：个人信息 → 教育经历 → 实习经历 → 项目经历 → 技能等
-
-**注意事项：**
-- 如果某些输入框因为格式限制无法填写，请跳过并继续下一个
-- 在点击添加按钮改变DOM结构后，必须重新调用 `get_webpage_input()` 获取最新的输入框信息
-- 使用工具时请准确传递index参数，确保操作正确的元素
-- 填写内容时请根据输入框的描述信息匹配合适的简历内容
-
-**开始执行任务吧！**
-```
-
+---
 
 ## For Developers
 
 ### Project Structure
-Following are the files that have real function in the project. (Others are just test scripts)
+Below are the main files and their descriptions:
 
-| File              | Description                                                             |
-|-------------------|-------------------------------------------------------------------------|
-| `mcpserver.py`    | Main MCP server logic and tool definitions                              |
-| `mybrowser.py`    | Wrapper for the browser interface (based on Browser Use)                |
-| `jsutils.py`      | Utility functions to extract text and attributes from the DOM           |
-| `start_chrome.py` | Script to launch a Chrome instance with CDP enabled                     |
-| `webui.py` | MCP Client， Gradio App                    |
+| File                   | Description                                                      |
+|------------------------|------------------------------------------------------------------|
+| `data_player.ipynb`    | Interactive notebook for data visualization and exploration.      |
+| `sk_pred.ipynb`        | Notebook for training and evaluating scikit-learn models.         |
+| `deep_models.py`       | Implementation of deep learning model architectures.              |
+| `data_prepare.py`      | Data loading, preprocessing, and dataset utilities.               |
+| `deep_training.py`     | Training and evaluation logic for deep learning models.           |
+| `run_train.py`         | Main script to launch training with configuration support.        |
+| `draw_results.ipynb`   | Notebook for plotting and analyzing training results.             |
+| `requirements.txt`     | Python dependencies for the project.                             |
+| `configs/`             | Model and training configuration files (YAML format).             |
+| `data/`                | Directory for storing datasets (not included in repo).            |
+
 ---
 
-### Run MCP Inspector (For Debugging)
-
-To inspect and debug MCP tools:
-- Prerequiste Node.js
-- Open powershell as admin
-
-```powershell
-cd path\to\Fillit
-.venv\Scripts\activate
-mcp dev mcpserver.py
-```
-
-This will launch an interactive MCP tool inspector.
-
-
-### Reference
-This project adapt the MCP Client from the tutorial below
-
-https://www.gradio.app/guides/building-an-mcp-client-with-gradio#part-2-building-the-mcp-client-with-gradio
-
-
-### Misc 
-Update on 2025/05/10:
-
-I cannot start this project from default user data which is usually in `C:\Users\<YourUsername>\AppData\Local\Google\Chrome\User Data\`
- because Chrome does not support this anymore for security reasons. 
-
- Further information can be found in `https://developer.chrome.com/blog/remote-debugging-port`
-
- However, I have updated the script. Now, `start_chrome.py` start from the customized user data directory in `ChromeUserData`. Users can choose to reload their data after launching Chrome by `start_chrome.py` and login to certain job website and store authorizations so that later the AI agent can fill resumes.
+## Contact
+For questions or suggestions, please contact anyone of the team members.
